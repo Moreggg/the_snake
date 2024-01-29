@@ -30,7 +30,7 @@ APPLE_COLOR = (255, 0, 0)
 SNAKE_COLOR = (0, 255, 0)
 
 # Скорость движения змейки:
-SPEED = 20
+SPEED = 10
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -56,11 +56,12 @@ class GameObject():
 class Apple(GameObject):
 
     def __init__(self, body_color):
-        self.position = self.randomize_position
+        self.position = self.randomize_position()
         super().__init__(body_color)
 
     def randomize_position(self):
-        return randint(0, GRID_HEIGHT) * GRID_SIZE
+        return (randint(0, GRID_WIDTH) * GRID_SIZE,
+                randint(0, GRID_HEIGHT) * GRID_SIZE)
 
 # Метод draw класса Apple
     def draw(self, surface):
@@ -80,12 +81,13 @@ class Snake(GameObject):
         self.positions = [self.position]
         self.direction = RIGHT
         self.next_direction = None
+        self.last = None
         super().__init__(body_color)
 
 # Метод обновления направления после нажатия на кнопку
     def update_direction(self):
         if self.next_direction:
-            self.direction = self.next_direction()
+            self.direction = self.next_direction
             self.next_direction = None
 
 # # Метод draw класса Snake
@@ -117,41 +119,56 @@ class Snake(GameObject):
         head_positton = self.get_head_position()
         new_head_positton_x = head_positton[0] + self.direction[0] * GRID_SIZE
         new_head_positton_y = head_positton[1] + self.direction[1] * GRID_SIZE
+        if new_head_positton_x > SCREEN_WIDTH:
+            new_head_positton_x = 0
+        if new_head_positton_x < 0:
+            new_head_positton_x = SCREEN_WIDTH
+        if new_head_positton_y > SCREEN_HEIGHT:
+            new_head_positton_y = 0
+        if new_head_positton_y < 0:
+            new_head_positton_y = SCREEN_HEIGHT
         self.positions[0] = (new_head_positton_x, new_head_positton_y)
+
+            
 
     def reset(self):
         pass
 
 
+# Функция обработки действий пользователя
+def handle_keys(game_object):
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            raise SystemExit
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and game_object.direction != DOWN:
+                game_object.next_direction = UP
+            elif event.key == pygame.K_DOWN and game_object.direction != UP:
+                game_object.next_direction = DOWN
+            elif event.key == pygame.K_LEFT and game_object.direction != RIGHT:
+                game_object.next_direction = LEFT
+            elif event.key == pygame.K_RIGHT and game_object.direction != LEFT:
+                game_object.next_direction = RIGHT
+
+
 def main():
     # Тут нужно создать экземпляры классов.
-    pass
+    snake = Snake(SNAKE_COLOR)
+    apple = Apple(APPLE_COLOR)
 
-    # while True:
-    #     clock.tick(SPEED)
+    while True:
+        clock.tick(SPEED)
 
         # Тут опишите основную логику игры.
-        # ...
+        snake.draw(screen)
+        apple.draw(screen)
+        handle_keys(snake)
+        snake.update_direction()
+        snake.move()
+        pygame.display.update()
+        print(snake.positions)
 
 
 if __name__ == '__main__':
     main()
-
-
-
-
-# Функция обработки действий пользователя
-# def handle_keys(game_object):
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             pygame.quit()
-#             raise SystemExit
-#         elif event.type == pygame.KEYDOWN:
-#             if event.key == pygame.K_UP and game_object.direction != DOWN:
-#                 game_object.next_direction = UP
-#             elif event.key == pygame.K_DOWN and game_object.direction != UP:
-#                 game_object.next_direction = DOWN
-#             elif event.key == pygame.K_LEFT and game_object.direction != RIGHT:
-#                 game_object.next_direction = LEFT
-#             elif event.key == pygame.K_RIGHT and game_object.direction != LEFT:
-#                 game_object.next_direction = RIGHT
