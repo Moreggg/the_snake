@@ -43,7 +43,7 @@ clock = pygame.time.Clock()
 
 
 # Тут опишите все классы игры.
-class GameJbject():
+class GameObject():
 
     def __init__(self, body_color):
         self.position = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
@@ -53,7 +53,7 @@ class GameJbject():
         pass
 
 
-class Apple(GameJbject):
+class Apple(GameObject):
 
     def __init__(self, body_color, position):
         self.position = position
