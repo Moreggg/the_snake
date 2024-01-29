@@ -49,8 +49,28 @@ class GameJbject():
         self.position = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
         self.body_color = body_color
 
-    def draw():
+    def draw(self):
         pass
+
+
+class Apple(GameJbject):
+
+    def __init__(self, body_color, position):
+        self.position = position
+        super().__init__(body_color)
+
+    def randomize_position(self):
+        return randint(0, GRID_HEIGHT) * GRID_SIZE
+
+# Метод draw класса Apple
+    def draw(self, surface):
+
+        rect = pygame.Rect(
+            (self.position[0], self.position[1]),
+            (GRID_SIZE, GRID_SIZE)
+        )
+        pygame.draw.rect(surface, self.body_color, rect)
+        pygame.draw.rect(surface, BORDER_COLOR, rect, 1)
 
 def main():
     # Тут нужно создать экземпляры классов.
@@ -67,14 +87,6 @@ if __name__ == '__main__':
     main()
 
 
-# Метод draw класса Apple
-# def draw(self, surface):
-#     rect = pygame.Rect(
-#         (self.position[0], self.position[1]),
-#         (GRID_SIZE, GRID_SIZE)
-#     )
-#     pygame.draw.rect(surface, self.body_color, rect)
-#     pygame.draw.rect(surface, BORDER_COLOR, rect, 1)
 
 # # Метод draw класса Snake
 # def draw(self, surface):
