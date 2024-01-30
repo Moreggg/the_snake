@@ -60,8 +60,8 @@ class Apple(GameObject):
         super().__init__(body_color)
 
     def randomize_position(self):
-        return (randint(0, GRID_WIDTH) * GRID_SIZE,
-                randint(0, GRID_HEIGHT) * GRID_SIZE)
+        return [randint(0, GRID_WIDTH) * GRID_SIZE,
+                randint(0, GRID_HEIGHT) * GRID_SIZE]
 
 # Метод draw класса Apple
     def draw(self, surface):
@@ -127,12 +127,15 @@ class Snake(GameObject):
             new_head_positton_y = 0
         if new_head_positton_y < 0:
             new_head_positton_y = SCREEN_HEIGHT
-        self.positions[0] = (new_head_positton_x, new_head_positton_y)
+        self.positions.insert(0, [new_head_positton_x, new_head_positton_y])
+        if len(self.positions) > self.length:
+            self.positions.pop()
 
-            
 
     def reset(self):
-        pass
+        self.length = 1
+        self.positions = [self.position]
+        self.direction = choice(choice(LEFT, RIGHT), choice(UP, DOWN))
 
 
 # Функция обработки действий пользователя
@@ -161,13 +164,17 @@ def main():
         clock.tick(SPEED)
 
         # Тут опишите основную логику игры.
+        if apple.position == snake.positions[0]:
+            snake.length += 1
         snake.draw(screen)
+        snake.last = snake.positions[0]
         apple.draw(screen)
         handle_keys(snake)
         snake.update_direction()
         snake.move()
         pygame.display.update()
-        print(snake.positions)
+        print(snake.positions, snake.length)
+
 
 
 if __name__ == '__main__':
