@@ -66,9 +66,9 @@ class Apple(GameObject):
     описывающий яблоко и действия с ним.
     """
 
-    def __init__(self, snake, body_color=APPLE_COLOR):
+    def __init__(self, positions=(0, 0), body_color=APPLE_COLOR):
         super().__init__(body_color)
-        self.randomize_position(snake.positions)
+        self.randomize_position(positions)
 
     def randomize_position(self, positions):
         """Устанавливает случайное положение яблока на игровом поле."""
@@ -161,7 +161,7 @@ def main():
     # Тут нужно создать экземпляры классов.
     snake = Snake()
     screen.fill(BOARD_BACKGROUND_COLOR)
-    apple = Apple(snake)
+    apple = Apple(snake.positions)
     apple.draw(screen, apple.position)
 
     while True:
