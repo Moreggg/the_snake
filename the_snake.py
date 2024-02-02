@@ -3,8 +3,6 @@ import sys
 
 import pygame
 
-# Инициализация PyGame:
-pygame.init()
 
 # Константы для размеров поля и сетки:
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
@@ -51,8 +49,8 @@ class GameObject:
         self.position = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
         self.body_color = body_color
 
-    def draw(self, surface, position):
-        """Отрисовывает объекты на игровой поверхности."""
+    def make_cell(self, position, surface):
+        """Отрисовывает ячейки на игровой поверхности."""
         rect = pygame.Rect(
             (position[0], position[1]),
             (GRID_SIZE, GRID_SIZE)
@@ -60,22 +58,31 @@ class GameObject:
         pygame.draw.rect(surface, self.body_color, rect)
         pygame.draw.rect(surface, BORDER_COLOR, rect, 1)
 
+    def draw(self):
+        """Абстрактный метод, который предназначен
+        для переопределения в дочерних классах.
+        """
+        pass
+
 
 class Apple(GameObject):
     """Класс, унаследованный от GameObject,
     описывающий яблоко и действия с ним.
     """
 
-    def __init__(self, positions=(0, 0), body_color=APPLE_COLOR):
+    def __init__(self, snake=None, body_color=APPLE_COLOR):
         super().__init__(body_color)
-        self.randomize_position(positions)
+        self.randomize_position(snake)
 
-    def randomize_position(self, positions):
+    def randomize_position(self, snake=None):
         """Устанавливает случайное положение яблока на игровом поле."""
-        self.position = (randint(0, GRID_WIDTH - 1) * GRID_SIZE,
-                         randint(0, GRID_HEIGHT - 1) * GRID_SIZE)
-        if self.position in positions:
-            self.randomize_position(positions)
+        while snake and self.position in snake.positions:
+            self.position = (randint(0, GRID_WIDTH - 1) * GRID_SIZE,
+                             randint(0, GRID_HEIGHT - 1) * GRID_SIZE)
+
+    def draw(self, surface=screen):
+        """Отрисовывает яблоко на игровой поверхности."""
+        self.make_cell(self.position, surface)
 
 
 class Snake(GameObject):
@@ -96,8 +103,9 @@ class Snake(GameObject):
             self.direction = self.next_direction
             self.next_direction = None
 
-    def erase(self, surface):
-        """Затирание последнего сегмента."""
+    def draw(self, surface=screen):
+        """Отрисовывает змейку и затирает последний сегмент."""
+        self.make_cell(self.get_head_position(), surface)
         if self.last:
             last_rect = pygame.Rect(
                 self.last,
@@ -159,10 +167,14 @@ def handle_keys(game_object):
 def main():
     """Основной игровой цикл, где происходит обновление состояния объектов."""
     # Тут нужно создать экземпляры классов.
+
+    # Инициализация PyGame:
+    pygame.init()
+
     snake = Snake()
     screen.fill(BOARD_BACKGROUND_COLOR)
-    apple = Apple(snake.positions)
-    apple.draw(screen, apple.position)
+    apple = Apple(snake)
+    apple.draw()
 
     while True:
         clock.tick(SPEED)
@@ -170,14 +182,13 @@ def main():
         # Тут опишите основную логику игры.
         if apple.position == snake.get_head_position():
             snake.length += 1
-            apple.randomize_position(snake.positions)
-            apple.draw(screen, apple.position)
+            apple.randomize_position(snake)
+            apple.draw()
         if snake.get_head_position() in snake.positions[1:]:
             screen.fill(BOARD_BACKGROUND_COLOR)
             snake.reset()
-            apple.draw(screen, apple.position)
-        snake.draw(screen, snake.get_head_position())
-        snake.erase(screen)
+            apple.draw()
+        snake.draw()
         handle_keys(snake)
         snake.update_direction()
         snake.move()
